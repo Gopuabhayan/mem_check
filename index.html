@@ -1,0 +1,146 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head>     
+    <meta charset="UTF-8">     
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">     
+    <title>Memory Check</title>     
+    <style>         
+        * {             
+            margin: 0;             
+            padding: 0;             
+            font-family: 'Poppins', sans-serif;             
+            box-sizing: border-box;         
+        }         
+        .app {             
+            width: 100%;             
+            height: 100vh;             
+            background: #04192d;             
+            color: #fff;             
+            display: flex;             
+            align-items: center;             
+            justify-content: center;         
+        }         
+        .container {             
+            width: 450px;             
+            padding: 25px;             
+            border: 2px solid #fff;             
+            border-radius: 15px;         
+        }         
+        .row {             
+            display: flex;             
+            align-items: center;             
+            justify-content: space-between;             
+            margin: 30px 0;             
+            font-size: 24px;         
+        }         
+        label {             
+            position: relative;             
+            width: 50px;             
+            height: 50px;         
+        }         
+        input {             
+            width: 100%;             
+            height: 100%;             
+            position: absolute;             
+            opacity: 0;         
+        }         
+        label span {           
+            display: block;           
+            width: 100%;           
+            height: 100%;           
+            position: absolute;           
+            border: 3px solid #fff;           
+            border-radius: 6px;           
+            cursor: pointer;         
+        }         
+        /* Checkmark styling */
+        input:checked + span::after {           
+            content: '';           
+            position: absolute;           
+            left: 16px;
+            bottom: 5px;         
+            width: 15px;           
+            height: 30px;           
+            border: solid #0ff0a0;           
+            border-width: 0 6px 6px 0;           
+            transform: rotate(45deg);           
+            opacity: 1;         
+        }
+        input :checked1~span::after{
+          width: 20px;
+          height: 40px;
+          opacity: 1; 
+        }
+        .heading{
+            position: absolute;
+            top: 100px;
+            left: 800px;
+            font-size: 50px;
+            color: #fff;
+        }     
+    </style> 
+</head> 
+<body> 
+   <h1 class="heading"><u>Memory Check</u><h1>   
+    <div class="app">         
+        <div class="container">             
+            <div class="row">                 
+                <p>FAN</p>                 
+                <label>
+                    <input type="checkbox" >
+                    <span></span>
+                </label>             
+            </div> 
+            <div class="row">                 
+                <p>HEATER</p>                 
+                <label>
+                    <input type="checkbox" >
+                    <span></span>
+                </label>             
+            </div>
+            <div class="row">                 
+                <p>AC</p>                 
+                <label>
+                    <input type="checkbox">
+                    <span></span>
+                </label>             
+            </div>
+            <div class="row">                 
+                <p>TV</p>                 
+                <label>
+                    <input type="checkbox">
+                    <span></span>
+                </label>             
+            </div> 
+            <div class="row">                 
+                <p>IRONBOX</p>                 
+                <label>
+                    <input type="checkbox">
+                    <span></span>
+                </label>             
+            </div>
+                             
+        </div>     
+    </div> 
+</body> 
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+  
+      // Load saved states
+      checkboxes.forEach((checkbox, index) => {
+        const saved = localStorage.getItem("checkbox-" + index);
+        checkbox.checked = saved === "true";
+      });
+  
+      // Save states on change
+      checkboxes.forEach((checkbox, index) => {
+        checkbox.addEventListener("change", () => {
+          localStorage.setItem("checkbox-" + index, checkbox.checked);
+        });
+      });
+    });
+  </script>
+  
+</html>
