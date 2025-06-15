@@ -1,215 +1,965 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head>     
-    <meta charset="UTF-8">     
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">     
-    <title>Memory Check</title> 
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="b35c9890-da93-485a-8f7a-be7f0e4d8a2d"></script>    
-    <style>         
-        * {             
-            margin: 0;             
-            padding: 0;             
-            font-family: 'Poppins', sans-serif;             
-            box-sizing: border-box;         
-        }         
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Check</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: #000;
+            overflow: hidden;
+            color: white;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .scene {
+            position: absolute;
             width: 100%;
-            background: #04192d;
-            color: #fff;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-        }
-        .heading {
-            margin-top: 100px;            
-            font-size: 50px;
-            text-align: center;
-            color: #fff;
-        }
-        .app {             
-            display: flex;             
-            align-items: center;             
             justify-content: center;
-            width: 100%;
-            flex: 1;
-            padding: 20px;
-        }         
-        .container {             
-            width: 100%;
-            max-width: 450px;
-            padding: 25px;             
-            border: 2px solid #fff;             
-            border-radius: 15px;         
-        }         
-        .row {             
-            display: flex;             
-            align-items: center;             
-            justify-content: space-between;             
-            margin: 20px 0;             
-            font-size: clamp(18px, 5vw, 24px);
-        }         
-        label {             
-            position: relative;             
-            width: 50px;             
-            height: 50px;         
-        }         
-        input {             
-            width: 100%;             
-            height: 100%;             
-            position: absolute;             
-            opacity: 0;         
-        }         
-        label span {           
-            display: block;           
-            width: 100%;           
-            height: 100%;           
-            position: absolute;           
-            border: 3px solid #fff;           
-            border-radius: 6px;           
-            cursor: pointer;         
-        }         
-        /* Checkmark styling */
-        input:checked + span::after {           
-            content: '';           
-            position: absolute;           
-            left: 16px;
-            bottom: 5px;         
-            width: 15px;           
-            height: 30px;           
-            border: solid #0ff0a0;           
-            border-width: 0 6px 6px 0;           
-            transform: rotate(45deg);           
-            opacity: 1;         
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        
-        /* Remove invalid selector */
-        /* input :checked1~span::after was incorrect and has been removed */
-        
-        /* Media Queries */
-        @media screen and (max-width: 480px) {
-            .container {
-                padding: 15px;
+
+        .scene.active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #0f172a, #1e293b, #334155, #475569);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            z-index: -1;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Scene 1: Opening */
+        .scene-1 {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, rgba(0, 0, 0, 0.9) 70%);
+        }
+
+        .problem-text {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .problem-text.red {
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .worried-emoji {
+            font-size: 8rem;
+            animation: bounce 2s infinite, fadeIn 1s ease forwards;
+            animation-delay: 1s;
+            opacity: 0;
+        }
+
+        /* Scene 2: Solution */
+        .scene-2 {
+            background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, rgba(0, 0, 0, 0.9) 70%);
+        }
+
+        .solution-text {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #22c55e, #3b82f6, #8b5cf6);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: rainbowText 3s ease infinite, scaleIn 1s ease forwards;
+            text-align: center;
+            margin-bottom: 2rem;
+            transform: scale(0);
+        }
+
+        .app-preview {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            animation: slideInFromBottom 1.5s ease forwards;
+            animation-delay: 0.5s;
+            transform: translateY(100px);
+            opacity: 0;
+        }
+
+        /* Scene 3: Features */
+        .scene-3 {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            max-width: 800px;
+            animation: slideInGrid 1.5s ease forwards;
+            opacity: 0;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            transform: translateY(50px);
+            animation: cardPop 0.8s ease forwards;
+        }
+
+        .feature-card:nth-child(1) { animation-delay: 0.2s; }
+        .feature-card:nth-child(2) { animation-delay: 0.4s; }
+        .feature-card:nth-child(3) { animation-delay: 0.6s; }
+        .feature-card:nth-child(4) { animation-delay: 0.8s; }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #3b82f6;
+        }
+
+        /* Scene 4: Demo */
+        .scene-4 {
+            background: rgba(0, 0, 0, 0.95);
+        }
+
+        .demo-container {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            animation: zoomIn 1s ease forwards;
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        .demo-title {
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #22c55e;
+        }
+
+        .demo-checklist {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .demo-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(30, 41, 59, 0.6);
+            border-radius: 12px;
+            opacity: 0;
+            transform: translateX(-50px);
+            animation: slideInDemo 0.5s ease forwards;
+        }
+
+        .demo-item:nth-child(1) { animation-delay: 1s; }
+        .demo-item:nth-child(2) { animation-delay: 1.2s; }
+        .demo-item:nth-child(3) { animation-delay: 1.4s; }
+        .demo-item:nth-child(4) { animation-delay: 1.6s; }
+
+        .demo-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #666;
+            border-radius: 4px;
+            position: relative;
+            animation: checkAnimation 0.5s ease forwards;
+            animation-delay: 2s;
+        }
+
+        /* Scene 5: CTA */
+        .scene-5 {
+            background: linear-gradient(45deg, #8b5cf6, #3b82f6, #22c55e);
+            background-size: 300% 300%;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        .cta-content {
+            text-align: center;
+            animation: finalZoom 1.5s ease forwards;
+            transform: scale(0.5);
+            opacity: 0;
+        }
+
+        .cta-title {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.5rem 3rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .cta-button:hover {
+            background: white;
+            color: #8b5cf6;
+            transform: scale(1.1);
+        }
+
+        /* Progress bar */
+        .progress-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #22c55e);
+            width: 0%;
+            transition: width 1s ease;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
             }
-            .row {
-                margin: 15px 0;
-            }
-            label {
-                width: 40px;
-                height: 40px;
-            }
-            input:checked + span::after {
-                left: 12px;
-                bottom: 4px;
-                width: 12px;
-                height: 24px;
-                border-width: 0 5px 5px 0;
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        @media screen and (max-width: 320px) {
-            .container {
-                padding: 10px;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% {
+                transform: translateY(0);
             }
-            .row {
-                margin: 10px 0;
+            40%, 43% {
+                transform: translateY(-20px);
             }
-            label {
-                width: 35px;
-                height: 35px;
+            70% {
+                transform: translateY(-10px);
             }
-            input:checked + span::after {
-                left: 10px;
-                bottom: 3px;
-                width: 10px;
-                height: 20px;
-                border-width: 0 4px 4px 0;
+            90% {
+                transform: translateY(-4px);
             }
         }
 
-    </style> 
-</head> 
-<body> 
-    <h1 class="heading"><u>Memory Check</u></h1>
-    <div class="app">         
-        <div class="container">             
-            <div class="row">                 
-                <p>FAN</p>                 
-                <label>
-                    <input type="checkbox" >
-                    <span></span>
-                </label>             
-            </div> 
-            <div class="row">                 
-                <p>HEATER</p>                 
-                <label>
-                    <input type="checkbox" >
-                    <span></span>
-                </label>             
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes slideInFromBottom {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInGrid {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardPop {
+            from {
+                transform: translateY(50px) scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInDemo {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes checkAnimation {
+            to {
+                background: #22c55e;
+                border-color: #22c55e;
+            }
+        }
+
+        @keyframes finalZoom {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes rainbowText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .control-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <div class="bg-animation"></div>
+        
+        <!-- Scene 1: Problem -->
+        <div class="scene scene-1 active" data-scene="1">
+            <div class="problem-text red">Do you often forget to turn off appliances?</div>
+            <div class="worried-emoji">😰</div>
+            <div class="problem-text" style="animation-delay: 2s;">Leaving home worried about safety?</div>
+        </div>
+
+        <!-- Scene 2: Solution Introduction -->
+        <div class="scene scene-2" data-scene="2">
+            <div class="solution-text">Introducing Memory Check</div>
+            <div class="app-preview">
+                <h2 style="color: #3b82f6; text-align: center; margin-bottom: 1rem;">Your Digital Safety Assistant</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; color: #94a3b8;">
+                    <div>✓ Fan</div>
+                    <div>✓ Heater</div>
+                    <div>✓ AC</div>
+                    <div>✓ TV</div>
+                    <div>✓ Iron Box</div>
+                    <div>✓ Windows</div>
+                    <div>✓ Doors</div>
+                    <div>✓ Gas</div>
+                </div>
             </div>
-            <div class="row">                 
-                <p>AC</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
+        </div>
+
+        <!-- Scene 3: Features -->
+        <div class="scene scene-3" data-scene="3">
+            <h2 style="font-size: 3rem; margin-bottom: 3rem; text-align: center; color: #3b82f6;">Why Choose Memory Check?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🎯</span>
+                    <div class="feature-title">Simple & Intuitive</div>
+                    <p>Easy-to-use checklist interface</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-title">Lightning Fast</div>
+                    <p>Check items in seconds</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <div class="feature-title">Peace of Mind</div>
+                    <p>Never worry about safety again</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <div class="feature-title">Always Available</div>
+                    <p>Works on any device, anywhere</p>
+                </div>
             </div>
-            <div class="row">                 
-                <p>TV</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
-            </div> 
-            <div class="row">                 
-                <p>IRONBOX</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
+        </div>
+
+        <!-- Scene 4: Demo -->
+        <div class="scene scene-4" data-scene="4">
+            <div class="demo-container">
+                <div class="demo-title">See It In Action</div>
+                <div class="demo-checklist">
+                    <div class="demo-item">
+                        <span>Turn off Fan</span>
+                        <div class="demo-checkbox"></div>
+                    </div>
+                    <div class="demo-item">
+                        <span>Check Windows</span>
+                        <div class="demo-checkbox"></div>
+                    </div>
+                    <div class="demo-item">
+                        <span>Lock Doors</span>
+                        <div class="demo-checkbox"></div>
+                    </div>
+                    <div class="demo-item">
+                        <span>Turn off Gas</span>
+                        <div class="demo-checkbox"></div>
+                    </div>
+                </div>
             </div>
-            <div class="row">                 
-                <p>WINDOW</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
+        </div>
+
+        <!-- Scene 5: Call to Action -->
+        <div class="scene scene-5" data-scene="5">
+            <div class="cta-content">
+                <div class="cta-title">Start Using Memory Check Today!</div>
+                <a href="#" class="cta-button" onclick="goToMemoryCheck()">Try It Now →</a>
+                <p style="margin-top: 2rem; opacity: 0.8;">Join thousands who never forget again</p>
             </div>
-            <div class="row">                 
-                <p>DOORS</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
-            </div>
-            <div class="row">                 
-                <p>GAS</p>                 
-                <label>
-                    <input type="checkbox">
-                    <span></span>
-                </label>             
-            </div>             
-        </div>     
-    </div> 
-    
-<script>
-        document.addEventListener("DOMContentLoaded", function () {
-      const checkboxes = document.querySelectorAll("input[type='checkbox']");
-  
-      // Load saved states
-      checkboxes.forEach((checkbox, index) => {
-        const saved = localStorage.getItem("checkbox-" + index);
-        checkbox.checked = saved === "true";
-      });
-  
-       // Save states on change
-      checkboxes.forEach((checkbox, index) => {
-        checkbox.addEventListener("change", () => {
-          localStorage.setItem("checkbox-" + index, checkbox.checked);
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+        <button class="control-btn" onclick="prevScene()">← Previous</button>
+        <button class="control-btn" onclick="nextScene()">Next →</button>
+        <button class="control-btn" onclick="restartVideo()">🔄 Restart</button>
+    </div>
+
+    <script>
+        let currentScene = 1;
+        const totalScenes = 5;
+
+        function showScene(sceneNumber) {
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-scene="${sceneNumber}"]`).classList.add('active');
+            
+            // Update progress
+            const progress = (sceneNumber / totalScenes) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            currentScene = sceneNumber;
+        }
+
+        function nextScene() {
+            if (currentScene < totalScenes) {
+                showScene(currentScene + 1);
+            } else {
+                showScene(1); // Loop back to start
+            }
+        }
+
+        function prevScene() {
+            if (currentScene > 1) {
+                showScene(currentScene - 1);
+            } else {
+                showScene(totalScenes); // Go to last scene
+            }
+        }
+
+        function restartVideo() {
+            showScene(1);
+        }
+
+        function goToMemoryCheck() {
+            // Hide all promo scenes
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.style.display = 'none';
+            });
+            
+            // Hide controls and progress bar
+            document.querySelector('.controls').style.display = 'none';
+            document.querySelector('.progress-bar').style.display = 'none';
+            
+            // Create and show the Memory Check app
+            showMemoryCheckApp();
+        }
+
+        function showMemoryCheckApp() {
+            const appContainer = document.createElement('div');
+            appContainer.className = 'memory-check-app';
+            appContainer.innerHTML = `
+                <div class="memory-check">
+                    <h1 class="title">Memory Check</h1>
+                    <div class="checklist">
+                        <div class="check-item" data-item="FAN">
+                            <span class="item-label">FAN</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="HEATER">
+                            <span class="item-label">HEATER</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="AC">
+                            <span class="item-label">AC</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="TV">
+                            <span class="item-label">TV</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="IRONBOX">
+                            <span class="item-label">IRONBOX</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="WINDOW">
+                            <span class="item-label">WINDOW</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="DOORS">
+                            <span class="item-label">DOORS</span>
+                            <div class="checkbox"></div>
+                        </div>
+                        <div class="check-item" data-item="GAS">
+                            <span class="item-label">GAS</span>
+                            <div class="checkbox"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-bar-app">
+                        <div class="progress-fill-app" id="progressFillApp"></div>
+                    </div>
+                    <div class="progress-text-app" id="progressTextApp">0 of 8 items checked</div>
+                    
+                    <div class="back-controls">
+                        <button class="back-btn" onclick="backToPromo()">← Back to Promo</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(appContainer);
+            
+            // Add app-specific styles
+            const appStyles = document.createElement('style');
+            appStyles.innerHTML = `
+                .memory-check-app {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100vw;
+                    height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+                    z-index: 2000;
+                    animation: slideIn 1s ease-out;
+                }
+
+                .memory-check {
+                    background: rgba(15, 23, 42, 0.9);
+                    backdrop-filter: blur(20px);
+                    border: 2px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 24px;
+                    padding: 40px;
+                    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .memory-check::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+                    animation: shine 3s infinite;
+                }
+
+                .title {
+                    color: white;
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 30px;
+                    text-decoration: underline;
+                    text-underline-offset: 8px;
+                    text-decoration-color: #3b82f6;
+                    animation: glow 2s ease-in-out infinite alternate;
+                }
+
+                .checklist {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .check-item {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 15px 20px;
+                    background: rgba(30, 41, 59, 0.6);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    cursor: pointer;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .check-item::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 0;
+                    height: 100%;
+                    background: linear-gradient(90deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.2));
+                    transition: width 0.5s ease;
+                }
+
+                .check-item:hover {
+                    transform: translateX(5px);
+                    border-color: rgba(59, 130, 246, 0.5);
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                }
+
+                .check-item.checked {
+                    background: rgba(34, 197, 94, 0.2);
+                    border-color: rgba(34, 197, 94, 0.5);
+                    animation: checkPulse 0.6s ease;
+                }
+
+                .check-item.checked::before {
+                    width: 100%;
+                }
+
+                .item-label {
+                    color: white;
+                    font-size: 1.2rem;
+                    font-weight: 500;
+                    transition: color 0.3s ease;
+                }
+
+                .check-item.checked .item-label {
+                    color: #22c55e;
+                }
+
+                .checkbox {
+                    width: 24px;
+                    height: 24px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 4px;
+                    position: relative;
+                    transition: all 0.3s ease;
+                    background: transparent;
+                }
+
+                .check-item.checked .checkbox {
+                    background: #22c55e;
+                    border-color: #22c55e;
+                    transform: rotate(360deg);
+                }
+
+                .checkbox::after {
+                    content: '✓';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(0);
+                    color: white;
+                    font-weight: bold;
+                    font-size: 16px;
+                    transition: transform 0.2s ease 0.1s;
+                }
+
+                .check-item.checked .checkbox::after {
+                    transform: translate(-50%, -50%) scale(1);
+                }
+
+                .progress-bar-app {
+                    margin-top: 30px;
+                    height: 8px;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 4px;
+                    overflow: hidden;
+                    position: relative;
+                }
+
+                .progress-fill-app {
+                    height: 100%;
+                    background: linear-gradient(90deg, #3b82f6, #22c55e);
+                    width: 0%;
+                    transition: width 0.5s ease;
+                    position: relative;
+                }
+
+                .progress-fill-app::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+                    animation: progressShine 1.5s infinite;
+                }
+
+                .progress-text-app {
+                    text-align: center;
+                    color: white;
+                    margin-top: 10px;
+                    font-size: 1.1rem;
+                    font-weight: 500;
+                }
+
+                .back-controls {
+                    text-align: center;
+                    margin-top: 30px;
+                }
+
+                .back-btn {
+                    padding: 12px 24px;
+                    background: rgba(59, 130, 246, 0.2);
+                    border: 2px solid #3b82f6;
+                    border-radius: 25px;
+                    color: white;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 1rem;
+                }
+
+                .back-btn:hover {
+                    background: rgba(59, 130, 246, 0.3);
+                    transform: scale(1.05);
+                }
+            `;
+            document.head.appendChild(appStyles);
+            
+            // Initialize app functionality
+            initializeMemoryCheckApp();
+        }
+
+        function initializeMemoryCheckApp() {
+            const checkItems = document.querySelectorAll('.memory-check-app .check-item');
+            const progressFill = document.getElementById('progressFillApp');
+            const progressText = document.getElementById('progressTextApp');
+            let checkedCount = 0;
+            const totalItems = checkItems.length;
+
+            checkItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const isChecked = item.classList.contains('checked');
+                    
+                    if (isChecked) {
+                        item.classList.remove('checked');
+                        checkedCount--;
+                    } else {
+                        item.classList.add('checked');
+                        checkedCount++;
+                        
+                        // Create ripple effect
+                        createRippleApp(item);
+                    }
+                    
+                    updateProgressApp();
+                    
+                    if (checkedCount === totalItems) {
+                        setTimeout(celebrateApp, 500);
+                    }
+                });
+            });
+
+            function createRippleApp(element) {
+                const ripple = document.createElement('div');
+                const rect = element.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = '50%';
+                ripple.style.top = '50%';
+                ripple.style.transform = 'translate(-50%, -50%) scale(0)';
+                ripple.style.position = 'absolute';
+                ripple.style.borderRadius = '50%';
+                ripple.style.background = 'rgba(34, 197, 94, 0.3)';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                ripple.style.pointerEvents = 'none';
+                
+                element.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            }
+
+            function updateProgressApp() {
+                const percentage = (checkedCount / totalItems) * 100;
+                progressFill.style.width = percentage + '%';
+                progressText.textContent = `${checkedCount} of ${totalItems} items checked`;
+            }
+
+            function celebrateApp() {
+                alert('🎉 Congratulations! All items checked! You can leave safely now! 🎉');
+            }
+        }
+
+        function backToPromo() {
+            // Remove the app
+            const appContainer = document.querySelector('.memory-check-app');
+            if (appContainer) {
+                appContainer.remove();
+            }
+            
+            // Show promo scenes again
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.style.display = 'flex';
+            });
+            
+            // Show controls and progress bar
+            document.querySelector('.controls').style.display = 'flex';
+            document.querySelector('.progress-bar').style.display = 'block';
+            
+            // Go back to first scene
+            showScene(1);
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    prevScene();
+                    break;
+                case 'ArrowRight':
+                case ' ':
+                    nextScene();
+                    break;
+                case 'r':
+                case 'R':
+                    restartVideo();
+                    break;
+            }
         });
-      });
-    });
-</script>
-  
+
+        // Auto-advance timer for demo checkboxes
+        setTimeout(() => {
+            if (currentScene === 4) {
+                const checkboxes = document.querySelectorAll('.demo-checkbox');
+                checkboxes.forEach((checkbox, index) => {
+                    setTimeout(() => {
+                        checkbox.style.background = '#22c55e';
+                        checkbox.style.borderColor = '#22c55e';
+                        checkbox.innerHTML = '<span style="color: white; font-weight: bold; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">✓</span>';
+                    }, (index + 1) * 500);
+                });
+            }
+        }, 2000);
+    </script>
 </body>
-</html> 
+</html>
